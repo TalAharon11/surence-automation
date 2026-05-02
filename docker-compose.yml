@@ -1,0 +1,66 @@
+version: "3.8"
+
+services:
+
+  # ── Demo site (React app + state API) ─────────────────────────────────────
+  demo-site:
+    build:
+      context: ./demo-site
+      dockerfile: Dockerfile
+    container_name: demo-site
+    ports:
+      - "8080:8080"          # open http://localhost:8080 in your browser
+    volumes:
+      - demo-state:/data     # persists state.json across restarts
+    networks:
+      - insurance-net
+    restart: unless-stopped
+
+  # ── Automation service (Playwright + Express) ──────────────────────────────
+  automation:
+    build:
+      context: ./automation
+      dockerfile: Dockerfile
+    container_name: automation
+    ports:
+      - "3000:3000"          # n8n calls POST http://automation:3000/run
+    environment:
+      - PORT=3000
+      - SITE_URL=http://demo-site:8080   # internal Docker hostname
+      - HEADLESS=true
+    networks:
+      - insurance-net
+    depends_on:
+      - demo-site
+    restart: unless-stopped
+
+  # ── n8n (workflow automation) ──────────────────────────────────────────────
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n
+    ports:
+      - "5678:5678"          # open http://localhost:5678 in your browser
+    volumes:
+      - n8n-data:/home/node/.n8n
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=admin
+      - N8N_BASIC_AUTH_PASSWORD=admin123
+      - WEBHOOK_URL=http://localhost:5678/
+      # Needed for Gmail OAuth callback to work locally:
+      - N8N_EDITOR_BASE_URL=http://localhost:5678/
+    networks:
+      - insurance-net
+    depends_on:
+      - automation
+    restart: unless-stopped
+
+# ── Volumes ────────────────────────────────────────────────────────────────
+volumes:
+  demo-state:    # state.json for the demo site
+  n8n-data:      # n8n credentials, workflows, settings
+
+# ── Network ────────────────────────────────────────────────────────────────
+networks:
+  insurance-net:
+    driver: bridge

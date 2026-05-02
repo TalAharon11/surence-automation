@@ -1,0 +1,7 @@
+node_modules
+dist
+automation
+.git
+.lovable
+state.json
+*.log

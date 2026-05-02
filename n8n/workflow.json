@@ -1,0 +1,123 @@
+{
+  "name": "Daily Report Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {
+          "q": "דוח יומי"
+        },
+        "options": {
+          "downloadAttachments": true
+        }
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "2aa8ebb0-3167-4219-8d9a-5fbf4037c129",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "6gKLtztd07pNIdEP",
+          "name": "tal's gmail"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://automation:3000/run",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "attachment_0"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        256,
+        0
+      ],
+      "id": "2fbf5b41-250a-4b5e-99ac-2d051f5f8b0f",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "sendTo": "aharontal15@gmail.com",
+        "subject": "=דוח אוטומציה - {{ $json.companyName }} - {{ $now.format('dd/MM/yyyy') }}",
+        "message": "={{ $json.auditHtml }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        496,
+        0
+      ],
+      "id": "62f95eb6-1cd3-4acb-8640-8c283ddcf2a6",
+      "name": "Send a message",
+      "webhookId": "8317752a-585e-46f8-8eca-64ac9f05d973",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "6gKLtztd07pNIdEP",
+          "name": "tal's gmail"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "b298517e-3407-455e-b045-8b476606c036",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "41a9070d9fa983a48296e9852f31c9c34198d76b289622bdaa38fc12eefe04f8"
+  },
+  "id": "DvaOax9YfGxm4Lk2",
+  "tags": []
+}

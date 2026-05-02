@@ -1,0 +1,17 @@
+{
+  "name": "insurance-automation",
+  "version": "1.0.0",
+  "description": "Playwright automation for daily insurance reports (Harel, Menora, etc.)",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "automate": "node automate.js",
+    "install-browsers": "npx playwright install chromium"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "multer": "^1.4.5-lts.1",
+    "playwright": "^1.59.1",
+    "xlsx": "^0.18.5"
+  }
+}
